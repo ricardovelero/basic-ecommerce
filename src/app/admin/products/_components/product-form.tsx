@@ -1,16 +1,18 @@
 "use client";
 
+import { addProduct } from "@/actions/admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/lib/formatters";
 import { useState } from "react";
+import { useFormStatus } from "react-dom";
 
 export default function ProductForm() {
   const [priceInCents, setPriceInCents] = useState<number>();
   return (
-    <form className='space-y-8'>
+    <form action={addProduct} className='space-y-8'>
       <div className='space-y-2'>
         <Label htmlFor='name'>Name</Label>
         <Input type='text' id='name' name='name' required />
@@ -26,7 +28,7 @@ export default function ProductForm() {
           onChange={(e) => setPriceInCents(Number(e.target.value) || undefined)}
         />
         <div className='text-muted-foreground'>
-          {formatCurrency(priceInCents || 0 / 100)}
+          {formatCurrency((priceInCents || 0) / 100)}
         </div>
       </div>
       <div className='space-y-2'>
@@ -41,7 +43,17 @@ export default function ProductForm() {
         <Label htmlFor='image'>Image</Label>
         <Input type='file' id='image' name='image' required />
       </div>
-      <Button type='submit'>Save</Button>
+      <SubmitButton />
     </form>
+  );
+}
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button type='submit' disabled={pending}>
+      {pending ? "Saving..." : "Save"}
+    </Button>
   );
 }
