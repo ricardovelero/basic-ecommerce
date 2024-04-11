@@ -1,6 +1,8 @@
 import { Nav, NavLink } from "@/components/nav";
 import { menuLinks } from "@/lib/admin-menu-links";
 
+export const dynamic = "force-dynamic";
+
 export default function AdminLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
