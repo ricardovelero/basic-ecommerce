@@ -17,7 +17,7 @@ export async function GET(
     },
   });
 
-  if (product === null) return notFound();
+  if (product == null) return notFound();
 
   const { size } = await fs.stat(product.filePath);
   const file = await fs.readFile(product.filePath);
