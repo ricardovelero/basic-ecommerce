@@ -132,6 +132,9 @@ export async function toggleProductAvailability(
       isAvailableForPurchase,
     },
   });
+
+  revalidatePath("/");
+  revalidatePath("/products");
 }
 
 export async function deleteProduct(id: string) {
