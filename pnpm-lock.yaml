@@ -17,6 +17,9 @@ dependencies:
   '@radix-ui/react-slot':
     specifier: ^1.0.2
     version: 1.0.2(@types/react@18.2.75)(react@18.2.0)
+  '@react-email/components':
+    specifier: ^0.0.16
+    version: 0.0.16(@types/react@18.2.75)(react@18.2.0)
   '@stripe/react-stripe-js':
     specifier: ^2.7.0
     version: 2.7.0(@stripe/stripe-js@3.3.0)(react-dom@18.2.0)(react@18.2.0)

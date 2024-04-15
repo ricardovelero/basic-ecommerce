@@ -1,3 +1,4 @@
+import PurchaseReceiptEmail from "@/email/purchase-receipt";
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
       },
     };
     const {
-      orders: [orders],
+      orders: [order],
     } = await db.user.upsert({
       where: {
         email,
@@ -66,7 +67,13 @@ export async function POST(req: NextRequest) {
       from: `Support <${process.env.SENDER_EMAIL}>`,
       to: email,
       subject: "Order Confirmation",
-      react: <h1>Oi!</h1>,
+      react: (
+        <PurchaseReceiptEmail
+          order={order}
+          product={product}
+          downloadVerificationId={downloadVerifaction.id}
+        />
+      ),
     });
   }
   return new NextResponse();
