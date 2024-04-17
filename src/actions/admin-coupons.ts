@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { DiscountCodeType } from "@prisma/client";
 import { db } from "@/lib/db";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 const addSchema = z
   .object({
@@ -53,7 +53,7 @@ export async function addDiscountCode(prevState: unknown, formData: FormData) {
   await db.discountCode.create({
     data: {
       code: data.code,
-      discoountAmount: data.discountAmount,
+      discountAmount: data.discountAmount,
       discountType: data.discountType,
       allProducts: data.allProducts,
       products:
@@ -68,4 +68,27 @@ export async function addDiscountCode(prevState: unknown, formData: FormData) {
   });
 
   redirect("/admin/discount-codes");
+}
+
+export async function toggleDiscountCodeActive(id: string, isActive: boolean) {
+  await db.discountCode.update({
+    where: {
+      id,
+    },
+    data: {
+      isActive,
+    },
+  });
+}
+
+export async function deleteDiscountCodeActive(id: string) {
+  const discountCode = await db.discountCode.delete({
+    where: {
+      id,
+    },
+  });
+
+  if (discountCode == null) return notFound();
+
+  return discountCode;
 }
