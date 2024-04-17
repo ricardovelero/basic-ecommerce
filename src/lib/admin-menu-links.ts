@@ -17,4 +17,8 @@ export const menuLinks = [
     name: "Sales",
     href: `${adminRoot}/orders`,
   },
+  {
+    name: "Coupons",
+    href: `${adminRoot}/discount-codes`,
+  },
 ];

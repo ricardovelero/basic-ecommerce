@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 
 export async function getSalesData() {
   const data = await db.order.aggregate({
@@ -39,4 +40,53 @@ export async function getProductData() {
     activeCount,
     inactiveCount,
   };
+}
+
+export async function getAllProducts() {
+  return await db.product.findMany({
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+}
+
+const WHERE_EXPIRED: Prisma.DiscountCodeWhereInput = {
+  OR: [
+    {
+      limit: {
+        not: null,
+        lte: db.discountCode.fields.uses,
+      },
+      expiresAt: {
+        not: null,
+        lte: new Date(),
+      },
+    },
+  ],
+};
+
+export async function getExpiredDiscountCode() {
+  return await db.discountCode.findMany({
+    // select: {},
+    where: WHERE_EXPIRED,
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
+}
+
+export async function getUnexpiredDiscountCode() {
+  return await db.discountCode.findMany({
+    // select: {},
+    where: {
+      NOT: WHERE_EXPIRED,
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
 }
