@@ -56,16 +56,16 @@ model DownloadVerification {
 }
 
 model DiscountCode {
-  id              String           @id @default(uuid())
-  code            String           @unique
-  discoountAmount Int
-  discountType    DiscountCodeType
-  uses            Int              @default(0)
-  isActive        Boolean          @default(true)
-  allProducts     Boolean          @default(false)
-  limit           Int?
-  expiresAt       DateTime?
-  createdAt       DateTime         @default(now())
+  id             String           @id @default(uuid())
+  code           String           @unique
+  discountAmount Int
+  discountType   DiscountCodeType
+  uses           Int              @default(0)
+  isActive       Boolean          @default(true)
+  allProducts    Boolean          @default(false)
+  limit          Int?
+  expiresAt      DateTime?
+  createdAt      DateTime         @default(now())
 
   products Product[]
   orders   Order[]
