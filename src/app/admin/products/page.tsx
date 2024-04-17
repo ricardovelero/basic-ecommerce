@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { db } from "@/lib/db";
-import { formatCurrency } from "@/lib/formatters";
+import { formatCurrency, formatNumber } from "@/lib/formatters";
 import { CheckCircle2, MoreVerticalIcon, XCircleIcon } from "lucide-react";
 import Link from "next/link";
 import {
@@ -89,7 +89,7 @@ async function ProductsTable() {
             </TableCell>
             <TableCell>{product.name}</TableCell>
             <TableCell>{formatCurrency(product.priceInCents / 100)}</TableCell>
-            <TableCell>{formatCurrency(product._count.orders)}</TableCell>
+            <TableCell>{formatNumber(product._count.orders)}</TableCell>
             <TableCell>
               <DropdownMenu>
                 <DropdownMenuTrigger>
