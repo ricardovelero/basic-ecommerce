@@ -17,6 +17,8 @@ export default function DiscountCodeForm({
 }) {
   const [error, action] = useFormState(addDiscountCode, {});
   const [allPorducts, setAllProducts] = useState(true);
+  const today = new Date();
+  today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
   return (
     <form action={action} className='space-y-8'>
       <div className='space-y-2'>

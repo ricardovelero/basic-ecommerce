@@ -69,9 +69,31 @@ const WHERE_EXPIRED: Prisma.DiscountCodeWhereInput = {
   ],
 };
 
+const SELECT_FIELDS: Prisma.DiscountCodeSelect = {
+  id: true,
+  allProducts: true,
+  code: true,
+  discountAmount: true,
+  discountType: true,
+  expiresAt: true,
+  limit: true,
+  uses: true,
+  isActive: true,
+  products: {
+    select: {
+      name: true,
+    },
+  },
+  _count: {
+    select: {
+      orders: true,
+    },
+  },
+};
+
 export async function getExpiredDiscountCode() {
   return await db.discountCode.findMany({
-    // select: {},
+    select: SELECT_FIELDS,
     where: WHERE_EXPIRED,
     orderBy: {
       createdAt: "asc",
@@ -81,7 +103,7 @@ export async function getExpiredDiscountCode() {
 
 export async function getUnexpiredDiscountCode() {
   return await db.discountCode.findMany({
-    // select: {},
+    select: SELECT_FIELDS,
     where: {
       NOT: WHERE_EXPIRED,
     },

@@ -16,9 +16,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CheckCircle2, MoreVerticalIcon, XCircleIcon } from "lucide-react";
-import { formatCurrency, formatNumber } from "@/lib/formatters";
+import {
+  CheckCircle2,
+  Globe2Icon,
+  InfinityIcon,
+  MinusIcon,
+  MoreVerticalIcon,
+  XCircleIcon,
+} from "lucide-react";
+import {
+  formatCurrency,
+  formatNumber,
+  formatDiscountCode,
+  formatDateTime,
+} from "@/lib/formatters";
 import { getExpiredDiscountCode, getUnexpiredDiscountCode } from "@/data/admin";
+import {
+  ActiveToggleDropdownItem,
+  DeleteDropdownItem,
+} from "./_components/discount-code-actions";
 
 export default async function DiscountCodesPage() {
   const [unexpiredDiscountCodes, expiredDiscountCodes] = await Promise.all([
@@ -34,11 +50,14 @@ export default async function DiscountCodesPage() {
           <Link href={"/admin/discount-codes/new"}>Add coupon</Link>
         </Button>
       </div>
-      <DiscountCodesTable discountCodes={unexpiredDiscountCodes} />
+      <DiscountCodesTable
+        discountCodes={unexpiredDiscountCodes}
+        canDeactivate
+      />
 
       <div className='mt-8'>
         <h2 className='text-xl font-bold'>Expired Coupons</h2>
-        <DiscountCodesTable dicountCodes={expiredDiscountCodes} />
+        <DiscountCodesTable discountCodes={expiredDiscountCodes} isInactive />
       </div>
     </>
   );
@@ -46,9 +65,15 @@ export default async function DiscountCodesPage() {
 
 type DiscountCodesTableProps = {
   discountCodes: Awaited<ReturnType<typeof getUnexpiredDiscountCode>>;
+  isInactive?: boolean;
+  canDeactivate?: boolean;
 };
 
-function DiscountCodesTable({ discountCodes }: DiscountCodesTableProps) {
+function DiscountCodesTable({
+  discountCodes,
+  isInactive = false,
+  canDeactivate = false,
+}: DiscountCodesTableProps) {
   return (
     <Table>
       <TableHeader>
@@ -68,24 +93,45 @@ function DiscountCodesTable({ discountCodes }: DiscountCodesTableProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {coupons.map((coupon) => (
-          <TableRow key={coupon.id}>
+        {discountCodes.map((code) => (
+          <TableRow key={code.id}>
             <TableCell>
-              {coupon.isAvailableForPurchase ? (
+              {code.isActive && !isInactive ? (
                 <>
                   <CheckCircle2 />
-                  <span className='sr-only'>Available</span>
+                  <span className='sr-only'>Active</span>
                 </>
               ) : (
                 <>
                   <XCircleIcon className='stroke-destructive' />
-                  <span className='sr-only'>Available</span>
+                  <span className='sr-only'>Inactive</span>
                 </>
               )}
             </TableCell>
-            <TableCell>{coupon.name}</TableCell>
-            <TableCell>{formatCurrency(coupon.priceInCents / 100)}</TableCell>
-            <TableCell>{formatNumber(coupon._count.orders)}</TableCell>
+            <TableCell>{code.code}</TableCell>
+            <TableCell>{formatDiscountCode(code)}</TableCell>
+            <TableCell>
+              {code.expiresAt == null ? (
+                <MinusIcon />
+              ) : (
+                formatDateTime(code.expiresAt)
+              )}
+            </TableCell>
+            <TableCell>
+              {code.limit == null ? (
+                <InfinityIcon />
+              ) : (
+                formatNumber(code.limit - code.uses)
+              )}
+            </TableCell>
+            <TableCell>{formatNumber(code._count.orders)}</TableCell>
+            <TableCell>
+              {code.allProducts == null ? (
+                <Globe2Icon />
+              ) : (
+                code.products.map((p) => p.name).join(", ")
+              )}
+            </TableCell>
             <TableCell>
               <DropdownMenu>
                 <DropdownMenuTrigger>
@@ -93,23 +139,17 @@ function DiscountCodesTable({ discountCodes }: DiscountCodesTableProps) {
                   <span className='sr-only'>Actions</span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem>
-                    <a download href={`/admin/products/${coupon.id}/download`}>
-                      Download
-                    </a>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href={`/admin/products/${coupon.id}/edit`}>Edit</Link>
-                  </DropdownMenuItem>
-                  {/* <ActiveToggleDropdownItem
-                    id={coupon.id}
-                    isAvailableForPurchase={coupon.isAvailableForPurchase}
-                  /> */}
+                  {canDeactivate && (
+                    <ActiveToggleDropdownItem
+                      id={code.id}
+                      isActive={code.isActive}
+                    />
+                  )}
                   <DropdownMenuSeparator />
-                  {/* <DeleteDropdownItem
-                    id={coupon.id}
-                    disabled={coupon._count.orders > 0}
-                  /> */}
+                  <DeleteDropdownItem
+                    id={code.id}
+                    disabled={code._count.orders > 0}
+                  />
                 </DropdownMenuContent>
               </DropdownMenu>
             </TableCell>
