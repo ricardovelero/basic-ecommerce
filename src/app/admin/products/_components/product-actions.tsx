@@ -1,6 +1,9 @@
 "use client";
 
-import { deleteProduct, toggleProductAvailability } from "@/actions/admin";
+import {
+  deleteProduct,
+  toggleProductAvailability,
+} from "@/actions/admin-products";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
