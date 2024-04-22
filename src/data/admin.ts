@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { usableDiscountCodeWhere } from "@/lib/discountCodeHelper";
 import { Prisma } from "@prisma/client";
 
 export async function getSalesData() {
@@ -109,6 +110,20 @@ export async function getUnexpiredDiscountCode() {
     },
     orderBy: {
       createdAt: "asc",
+    },
+  });
+}
+
+export async function getDiscountCode(coupon: string, productId: string) {
+  return await db.discountCode.findUnique({
+    select: {
+      id: true,
+      discountAmount: true,
+      discountType: true,
+    },
+    where: {
+      ...usableDiscountCodeWhere,
+      code: coupon,
     },
   });
 }
