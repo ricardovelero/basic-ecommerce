@@ -16,7 +16,7 @@ export function formatNumber(number: number) {
   return NUMBER_FORMATTER.format(number);
 }
 
-const PERCENT_FORMATTER = new Intl.NumberFormat("es-ES", { style: "percent" });
+const PERCENT_FORMATTER = new Intl.NumberFormat("en-US", { style: "percent" });
 
 export function formatDiscountCode({
   discountAmount,
