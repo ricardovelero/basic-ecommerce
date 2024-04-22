@@ -156,7 +156,7 @@ function Form({
           <CardDescription className='text-destructive'>
             {errorMessage && <div>{errorMessage}</div>}
             {coupon != null && discountCode == null && (
-              <div>Invalid discount code</div>
+              <span>Invalid discount code</span>
             )}
           </CardDescription>
         </CardHeader>
