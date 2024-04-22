@@ -2,11 +2,18 @@
 
 import OrderHistoryEmail from "@/email/order-history";
 import { db } from "@/lib/db";
+import {
+  getDiscountedAmount,
+  usableDiscountCodeWhere,
+} from "@/lib/discountCodeHelper";
+import { error } from "console";
 import { notFound } from "next/navigation";
 import { Resend } from "resend";
+import Stripe from "stripe";
 import { z } from "zod";
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 export async function userOrderExists(email: string, productId: string) {
   return (
@@ -106,4 +113,60 @@ export async function emailOrderHistory(
     message:
       "Check your email to view your order history and download your products.",
   };
+}
+
+export async function createPaymentIntent(
+  email: string,
+  productId: string,
+  discountCodeId?: string
+) {
+  const product = await db.product.findUnique({
+    where: {
+      id: productId,
+    },
+  });
+  if (product == null) return { error: "Unexpected Error" };
+
+  const discountCode =
+    discountCodeId == null
+      ? null
+      : await db.discountCode.findUnique({
+          where: { id: discountCodeId, ...usableDiscountCodeWhere(productId) },
+        });
+
+  if (discountCode == null && discountCodeId != null) {
+    return { error: "Coupon has expired" };
+  }
+
+  const existingOrder = await db.order.findFirst({
+    where: { user: { email }, productId },
+    select: { id: true },
+  });
+
+  if (existingOrder != null) {
+    return {
+      error:
+        "You have already purchased this product, try downloading it from My Orders page",
+    };
+  }
+
+  const amount =
+    discountCode == null
+      ? product.priceInCents
+      : getDiscountedAmount(discountCode, product.priceInCents);
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount,
+    currency: "EUR",
+    metadata: {
+      productId: product.id,
+      discountCodeId: discountCode?.id || null,
+    },
+  });
+
+  if (paymentIntent.client_secret == null) {
+    throw Error("Unknown error");
+  }
+
+  return { clientSecret: paymentIntent.client_secret };
 }
